@@ -202,41 +202,66 @@
 			showFocus();
 		}
 		var onLoad = function() {
-			// 1. HTML document title
-			var filename = document.getElementById('filename').innerHTML;
-			document.getElementById('title').innerHTML = "AST (" + filename + ")";
+			
 
 			// 2. render tree structure -- you may make number of sections dynamic insteaf of fixed
-			section1 = document.getElementById('section1');
-			section1.innerHTML = renderJSON(JSON.parse(document.getElementById('section1JSON').innerHTML));
-			section2 = document.getElementById('section2');
-			section2.innerHTML = renderJSON(JSON.parse(document.getElementById('section2JSON').innerHTML));
+			
+            // let a = {"a":["a", "b"]}
+            function readTextFile(file, callback) {
+                var rawFile = new XMLHttpRequest();
+                rawFile.overrideMimeType("application/json");
+                rawFile.open("GET", file, true);
+                rawFile.onreadystatechange = function() {
+                    if (rawFile.readyState === 4 && rawFile.status == "200") {
+                        callback(rawFile.responseText);
+                    }
+                }
+                rawFile.send(null);
+            }
 
-			// 3. selection box, default on the first item on the tree
-			selected = document.getElementById('tree').firstElementChild.getElementsByTagName("li")[0];
-			showFocus();
+            //usage:
+            // readTextFile("/Users/Documents/workspace/test.json", function(text){
+            //     var data = JSON.parse(text);
+            //     console.log(data);
+            // });
 
-			// 4. click handlers
-			var treeListItems = document.querySelectorAll('ul.tree a');
-			for (var i = 0; i < treeListItems.length; i++) {
-				// click handler
-				treeListItems[i].addEventListener('click', function(e) {
-					var parent = e.target.parentElement;
-					hideFocus();
-					selected = parent;
-					showFocus();
-					var classList = parent.classList;
-					if (classList.contains("open")) { // close the element and its children
-						classList.remove('open');
-						var openChildrenList = parent.querySelectorAll(':scope .open');
-						for (var j = 0; j < openChildrenList.length; j++) {
-							openChildrenList[j].classList.remove('open');
-						}
-					} else { // open the element
-						classList.add('open');
-					}
-				});
-			}
+            readTextFile("Kartochka_kopia_1.json", function(text){
+                // 1. HTML document title
+                var filename = document.getElementById('filename').innerHTML;
+                document.getElementById('title').innerHTML = "AST (" + filename + ")";
+                section1 = document.getElementById('section1');
+                section1.innerHTML = renderJSON(JSON.parse(text));
+                section2 = document.getElementById('section2');
+                section2.innerHTML = renderJSON(JSON.parse(document.getElementById('section2JSON').innerHTML));
+
+                // 3. selection box, default on the first item on the tree
+                selected = document.getElementById('tree').firstElementChild.getElementsByTagName("li")[0];
+                showFocus();
+
+                // 4. click handlers
+                var treeListItems = document.querySelectorAll('ul.tree a');
+                for (var i = 0; i < treeListItems.length; i++) {
+                    // click handler
+                    treeListItems[i].addEventListener('click', function(e) {
+                        var parent = e.target.parentElement;
+                        hideFocus();
+                        selected = parent;
+                        showFocus();
+                        var classList = parent.classList;
+                        if (classList.contains("open")) { // close the element and its children
+                            classList.remove('open');
+                            var openChildrenList = parent.querySelectorAll(':scope .open');
+                            for (var j = 0; j < openChildrenList.length; j++) {
+                                openChildrenList[j].classList.remove('open');
+                            }
+                        } else { // open the element
+                            classList.add('open');
+                        }
+                    });
+                }
+            })
+			
+			
 
 			// 5. keyboard handler
 			document.addEventListener('keydown', function(e) {
